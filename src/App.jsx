@@ -882,7 +882,7 @@ export default function App() {
             </GlassCard>
           </div>
 
-          {/* FACECAM */}
+
           <GlassCard
             gradient={theme.facecam}
             className="relative min-h-[640px] h-full overflow-hidden flex items-center justify-center rounded-[34px] border border-white/10 bg-white/10 shadow-[0_25px_80px_rgba(0,0,0,0.18)]"
