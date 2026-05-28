@@ -98,35 +98,35 @@ const colorNameMap = {
   gold: "#ffd700",
 };
 
-const GlassCard = ({ children, className = "", gradient, onClick }) => {
+const GlassCard = ({ children, className = "", gradient, onClick, animateClass = "animate-[cardFloat_14s_ease-in-out_infinite]" }) => {
   const isSolid = gradient && (gradient.startsWith('#') || /^[a-zA-Z]+$/.test(gradient));
-  
+
   return (
     <div
       style={isSolid ? { backgroundColor: gradient } : {}}
       className={`
+        group relative overflow-hidden rounded-[28px]
+        border border-white/12
+        bg-white/3
+        ${isSolid ? '' : `bg-gradient-to-br ${gradient} bg-animate-gradient`}
+        backdrop-blur-3xl
+        shadow-[0_20px_50px_rgba(0,0,0,0.3)]
+        transition-all duration-500
+        transform-gpu
+        hover:-translate-y-1.5
+        hover:scale-[1.005]
+        hover:border-white/25
+        hover:shadow-[0_30px_70px_rgba(0,0,0,0.45),_0_0_30px_rgba(255,255,255,0.06)]
+        ${animateClass}
         
-     
-  group relative overflow-hidden rounded-[28px]
+        before:absolute
+        before:inset-0
+        before:bg-[linear-gradient(130deg,rgba(255,255,255,0.08),transparent_50%)]
+        before:pointer-events-none
 
-         border border-white/15
-         bg-white/5
-         ${isSolid ? '' : `bg-gradient-to-br ${gradient}`}
-         backdrop-blur-3xl
-         shadow-[0_25px_70px_rgba(0,0,0,0.18)]
-         transition-all duration-500
-         transform-gpu
-         hover:-translate-y-2
-         hover:shadow-[0_35px_100px_rgba(0,0,0,0.25)]
-         animate-[cardFloat_14s_ease-in-out_infinite]
-        
-         before:absolute
-         before:inset-0
-         before:bg-[linear-gradient(130deg,rgba(255,255,255,0.12),transparent_40%)]
-         before:pointer-events-none
-
-         ${className}
+        ${className}
       `}
+      onClick={onClick}
     >
       <div className="absolute inset-0 opacity-20 bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.35),transparent)] animate-[shimmer_5s_linear_infinite]" />
 
@@ -159,6 +159,8 @@ export default function App() {
     facecam: "from-purple-600 via-fuchsia-700 to-indigo-950",
     lastOver: "from-slate-700 via-slate-900 to-black",
     live: "from-red-500 via-rose-600 to-pink-700",
+    team1Card: "from-slate-900/80 via-cyan-950/60 to-blue-950/80",
+    team2Card: "from-slate-900/80 via-orange-950/60 to-red-950/80",
   });
 
   const [pickerTarget, setPickerTarget] = useState(null);
@@ -197,10 +199,9 @@ export default function App() {
           transition-all duration-300
           hover:scale-110
           
-          ${
-            pickerTarget === target
-              ? "opacity-100 pointer-events-auto"
-              : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
+          ${pickerTarget === target
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
           }
         `}
       >
@@ -210,22 +211,24 @@ export default function App() {
   };
 
   const isBgSolid = theme.background && (theme.background.startsWith('#') || /^[a-zA-Z]+$/.test(theme.background));
+  const isTeam1Solid = theme.team1Card && (theme.team1Card.startsWith('#') || /^[a-zA-Z]+$/.test(theme.team1Card));
+  const isTeam2Solid = theme.team2Card && (theme.team2Card.startsWith('#') || /^[a-zA-Z]+$/.test(theme.team2Card));
 
   // Render popup at root to prevent clipping inside small GlassCards
   const renderThemeModal = () => {
     if (!pickerTarget) return null;
-    
+
     const currentColor = theme[pickerTarget] || "";
     const colorForPicker = currentColor.startsWith('#')
       ? currentColor
       : colorNameMap[currentColor]
-      ? colorNameMap[currentColor]
-      : currentColor.match(/#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/)
-        ? currentColor.match(/#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/)[0]
-        : "#00ffff";
+        ? colorNameMap[currentColor]
+        : currentColor.match(/#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/)
+          ? currentColor.match(/#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/)[0]
+          : "#00ffff";
 
     return (
-      <div 
+      <div
         className="absolute inset-0 z-[9999999] bg-black/60 backdrop-blur-sm flex items-center justify-center"
         onClick={() => setPickerTarget(null)}
       >
@@ -254,14 +257,14 @@ export default function App() {
 
           <div className="flex-1 overflow-y-scroll pr-2 scrollbar-hide">
             <div className="mb-8 flex justify-center custom-picker">
-              <HexColorPicker 
-                color={colorForPicker} 
-                onChange={(color) => updateTheme(pickerTarget, color)} 
+              <HexColorPicker
+                color={colorForPicker}
+                onChange={(color) => updateTheme(pickerTarget, color)}
               />
             </div>
-            
+
             <h4 className="text-xs font-bold text-white/50 mb-4 tracking-widest uppercase">Or pick a solid color</h4>
-            
+
             <div className="grid grid-cols-5 gap-3 mb-4">
               {solidColorOptions.map((color, i) => (
                 <button
@@ -278,7 +281,7 @@ export default function App() {
             </div>
 
             <h4 className="text-xs font-bold text-white/50 mb-4 tracking-widest uppercase">Or pick a preset gradient</h4>
-            
+
             <div className="grid grid-cols-4 gap-3">
               {gradientOptions.map((g, i) => (
                 <button
@@ -334,6 +337,132 @@ export default function App() {
             @keyframes cardFloat {
                0%,100% { transform: translateY(0px); }
                50% { transform: translateY(-8px); }
+            }            @keyframes headerFloat {
+               0%, 100% {
+                  transform: translateY(0px) rotate(0deg);
+                  border-color: rgba(255, 255, 255, 0.12);
+                  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+               }
+               50% {
+                  transform: translateY(-6px) rotate(0.1deg);
+                  border-color: rgba(6, 182, 212, 0.25);
+                  box-shadow: 0 25px 60px rgba(6, 182, 212, 0.15), 0 0 25px rgba(6, 182, 212, 0.08);
+               }
+            }
+
+            @keyframes team1Float {
+               0%, 100% {
+                  transform: translateY(0px) translateX(0px) rotate(0deg) scale(1);
+                  border-color: rgba(255, 255, 255, 0.1);
+                  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+               }
+               50% {
+                  transform: translateY(-5px) translateX(2px) rotate(0.2deg) scale(1.005);
+                  border-color: rgba(34, 211, 238, 0.3);
+                  box-shadow: 0 25px 70px rgba(34, 211, 238, 0.2), 0 0 30px rgba(34, 211, 238, 0.1);
+               }
+            }
+
+            @keyframes team2Float {
+               0%, 100% {
+                  transform: translateY(0px) translateX(0px) rotate(0deg) scale(1);
+                  border-color: rgba(255, 255, 255, 0.1);
+                  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+               }
+               50% {
+                  transform: translateY(-5px) translateX(-2px) rotate(-0.2deg) scale(1.005);
+                  border-color: rgba(251, 146, 60, 0.3);
+                  box-shadow: 0 25px 70px rgba(251, 146, 60, 0.2), 0 0 30px rgba(251, 146, 60, 0.1);
+               }
+            }
+
+            @keyframes liveFloat {
+               0%, 100% {
+                  transform: translateY(0px) scale(1);
+                  border-color: rgba(239, 68, 68, 0.3);
+                  box-shadow: 0 0 25px rgba(239, 68, 68, 0.1);
+               }
+               50% {
+                  transform: translateY(-4px) scale(1.008);
+                  border-color: rgba(239, 68, 68, 0.6);
+                  box-shadow: 0 0 40px rgba(239, 68, 68, 0.25), 0 0 20px rgba(239, 68, 68, 0.15);
+               }
+            }
+
+            @keyframes lastOverFloat {
+               0%, 100% {
+                  transform: translateY(0px) translateX(0px);
+                  border-color: rgba(255, 255, 255, 0.12);
+               }
+               50% {
+                  transform: translateY(-5px) translateX(2px);
+                  border-color: rgba(255, 255, 255, 0.2);
+               }
+            }
+
+            @keyframes strikerFloat {
+               0%, 100% {
+                  transform: translateY(0px) rotate(0deg);
+                  border-color: rgba(255, 255, 255, 0.1);
+                  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+               }
+               50% {
+                  transform: translateY(-9px) rotate(0.3deg);
+                  border-color: rgba(59, 130, 246, 0.25);
+                  box-shadow: 0 25px 70px rgba(59, 130, 246, 0.18), 0 0 25px rgba(59, 130, 246, 0.1);
+               }
+            }
+
+            @keyframes nonStrikerFloat {
+               0%, 100% {
+                  transform: translateY(0px) rotate(0deg);
+                  border-color: rgba(255, 255, 255, 0.1);
+                  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+               }
+               50% {
+                  transform: translateY(-9px) rotate(-0.3deg);
+                  border-color: rgba(34, 211, 238, 0.25);
+                  box-shadow: 0 25px 70px rgba(34, 211, 238, 0.18), 0 0 25px rgba(34, 211, 238, 0.1);
+               }
+            }
+
+            @keyframes bowlerFloat {
+               0%, 100% {
+                  transform: translateY(0px) rotate(0deg);
+                  border-color: rgba(255, 255, 255, 0.1);
+                  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+               }
+               50% {
+                  transform: translateY(-8px) rotate(0.2deg);
+                  border-color: rgba(249, 115, 22, 0.25);
+                  box-shadow: 0 25px 70px rgba(249, 115, 22, 0.18), 0 0 25px rgba(249, 115, 22, 0.1);
+               }
+            }
+
+            @keyframes eventFloat {
+               0%, 100% {
+                  transform: translateY(0px) rotate(0deg);
+                  border-color: rgba(255, 255, 255, 0.1);
+                  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+               }
+               50% {
+                  transform: translateY(-8px) rotate(-0.2deg);
+                  border-color: rgba(217, 70, 239, 0.25);
+                  box-shadow: 0 25px 70px rgba(217, 70, 239, 0.18), 0 0 25px rgba(217, 70, 239, 0.1);
+               }
+            }
+
+            @keyframes facecamFloat {
+               0%, 100% {
+                  transform: translateY(0px) rotate(0deg);
+                  border-color: rgba(255, 255, 255, 0.1);
+                  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.18);
+               }
+               50% {
+                  transform: translateY(-7px) rotate(0.1deg);
+                  border-color: rgba(168, 85, 247, 0.25);
+                  box-shadow: 0 30px 90px rgba(168, 85, 247, 0.2), 0 0 30px rgba(168, 85, 247, 0.1);
+               }
             }
 
             @keyframes cardPulse {
@@ -349,10 +478,12 @@ export default function App() {
 
             @keyframes pulseGlow{
                0%,100%{
-                  box-shadow:0 0 20px rgba(0,255,255,0.18);
+                  box-shadow:0 0 20px rgba(255,255,255,0.1);
+                  border-color: rgba(255,255,255,0.15);
                }
                50%{
-                  box-shadow:0 0 50px rgba(0,255,255,0.35);
+                  box-shadow:0 0 35px rgba(255,255,255,0.25);
+                  border-color: rgba(255,255,255,0.35);
                }
             }
 
@@ -403,6 +534,11 @@ export default function App() {
                }
             }
 
+            @keyframes spin {
+               0% { transform: rotate(0deg); }
+               100% { transform: rotate(360deg); }
+            }
+
             .floating{
                animation:float 5s ease-in-out infinite;
             }
@@ -427,6 +563,16 @@ export default function App() {
                animation:bounceDot 1s infinite;
             }
             
+            .bg-animate-gradient {
+              background-size: 200% 200%;
+              animation: gradient-x 10s ease infinite;
+            }
+
+            @keyframes gradient-x {
+              0%, 100% { background-position: 0% 50%; }
+              50% { background-position: 100% 50%; }
+            }
+
             /* Custom React Colorful Styles to fit the app */
             .custom-picker .react-colorful {
               width: 100%;
@@ -464,6 +610,7 @@ export default function App() {
         <GlassCard
           gradient={theme.header}
           className="mx-5 mt-4 min-h-[240px] px-10 py-8 overflow-visible"
+          animateClass="animate-[headerFloat_16s_ease-in-out_infinite]"
         >
           <div className="absolute inset-0 overflow-hidden">
             <div className="scanline absolute inset-x-0 h-28 bg-gradient-to-b from-transparent via-white/10 to-transparent" />
@@ -471,7 +618,11 @@ export default function App() {
 
           <div className="relative flex h-[210px] gap-6 items-center">
             {/* TEAM 1 */}
-            <div className="w-1/3 h-[270px] rounded-[32px] border border-white/15 bg-white/5 shadow-[0_20px_60px_rgba(0,0,0,0.16)] backdrop-blur-3xl p-6 flex items-center justify-center">
+            <div
+              style={isTeam1Solid ? { backgroundColor: theme.team1Card } : {}}
+              className={`w-1/3 h-[270px] rounded-[32px] border border-white/10 hover:border-cyan-400/50 ${isTeam1Solid ? '' : `bg-gradient-to-br ${theme.team1Card} bg-animate-gradient`} shadow-[0_20px_60px_rgba(0,0,0,0.3)] hover:shadow-[0_0_35px_rgba(34,211,238,0.2)] backdrop-blur-3xl p-6 flex items-center justify-center transition-all duration-500 hover:scale-[1.03] group group/team1 relative overflow-hidden animate-[team1Float_8s_ease-in-out_infinite]`}
+            >
+              <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/5 to-transparent opacity-0 group-hover/team1:opacity-100 transition-opacity duration-500 pointer-events-none" />
               <div className="relative w-full flex flex-col gap-5">
                 {/* TEAM NAME TOP */}
                 <div
@@ -480,18 +631,22 @@ export default function App() {
                     setShowEditor("team1");
                   }}
                   className="
-        text-6xl
-        leading-none
-        font-black
-        tracking-wide
-        cursor-pointer
-        text-center
-        border border-cyan-300/40
-        rounded-2xl
-        px-6 py-5
-        hover:shadow-[0_0_20px_rgba(0,255,255,0.35)]
-        transition-all
-      "
+                    text-6xl
+                    leading-none
+                    font-black
+                    tracking-wide
+                    cursor-pointer
+                    text-center
+                    border border-cyan-300/20
+                    hover:border-cyan-300/80
+                    rounded-2xl
+                    px-6 py-5
+                    hover:shadow-[0_0_30px_rgba(6,182,212,0.35),inset_0_0_15px_rgba(6,182,212,0.15)]
+                    bg-white/5
+                    transition-all duration-300
+                    hover:scale-[1.02]
+                    active:scale-[0.98]
+                  "
                 >
                   {team1Name}
                 </div>
@@ -499,14 +654,20 @@ export default function App() {
                 {/* EMPTY SCORE SPACE */}
                 <div
                   className="
-        h-[150px]
-        border
-        border-cyan-300/40
-        rounded-2xl
-        bg-black/20
-        backdrop-blur-md
-      "
-                ></div>
+                    h-[150px]
+                    border
+                    border-cyan-300/20
+                    hover:border-cyan-300/60
+                    rounded-2xl
+                    bg-black/30
+                    backdrop-blur-md
+                    transition-all duration-300
+                    shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]
+                    relative overflow-hidden
+                  "
+                >
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.05)_0%,transparent_70%)] animate-pulse" />
+                </div>
 
                 {/* TEAM NAME EDITOR */}
                 {showEditor === "team1" && (
@@ -527,16 +688,18 @@ export default function App() {
                   </div>
                 )}
               </div>
+              <ColorPicker target="team1Card" />
             </div>
 
             {/* CENTER LIVE */}
-            <div className="w-1/3 h-[210px] rounded-3xl border border-red-400/30 bg-black/15 backdrop-blur-xl px-8 py-5 flex flex-col justify-between">
+            <div className="w-1/3 h-[210px] rounded-3xl border border-red-500/30 hover:border-red-500 bg-red-950/10 backdrop-blur-xl px-8 py-5 flex flex-col justify-between shadow-[0_0_25px_rgba(239,68,68,0.1)] hover:shadow-[0_0_40px_rgba(239,68,68,0.25)] transition-all duration-500 hover:scale-[1.02] relative overflow-hidden group group/live animate-[liveFloat_7s_ease-in-out_infinite] [animation-delay:0.8s]">
+              <div className="absolute -inset-10 bg-red-500/5 blur-2xl group-hover/live:bg-red-500/10 transition-all duration-500 pointer-events-none" />
               {/* TOP LIVE */}
-              <div className="flex justify-center">
+              <div className="flex justify-center z-10">
                 <div className="flex items-center gap-3">
                   <span className="h-3 w-3 rounded-full bg-red-500 animate-ping" />
                   <div
-                    className={`rounded-full ${theme.live?.startsWith('#') ? '' : `bg-gradient-to-r ${theme.live}`} px-6 py-2 text-lg font-black pulseGlow`}
+                    className={`rounded-full ${theme.live?.startsWith('#') ? '' : `bg-gradient-to-r ${theme.live}`} px-6 py-2 text-lg font-black shadow-[0_0_20px_rgba(239,68,68,0.4)] animate-[pulseGlow_2s_infinite]`}
                     style={theme.live?.startsWith('#') ? { backgroundImage: `linear-gradient(to right, ${theme.live}, ${theme.live}80)` } : {}}
                   >
                     LIVE
@@ -545,12 +708,12 @@ export default function App() {
               </div>
 
               {/* EMPTY SPACE FOR OBS SCORE */}
-              <div className="flex-1 flex items-center justify-center">
+              <div className="flex-1 flex items-center justify-center z-10">
                 <div className="w-full h-[80px]" />
               </div>
 
               {/* BOTTOM BAR */}
-              <div>
+              <div className="z-10">
                 <div className="relative h-3 w-full overflow-hidden rounded-full bg-white/10">
                   <div className="absolute inset-y-0 left-0 w-[45%] rounded-full bg-gradient-to-r from-cyan-400 to-blue-500" />
                   <div className="absolute inset-y-0 w-40 bg-white/40 blur-md animate-[liveBar_2s_linear_infinite]" />
@@ -559,7 +722,11 @@ export default function App() {
             </div>
 
             {/* TEAM 2 */}
-            <div className="w-1/3 h-[270px] rounded-[32px] border border-white/15 bg-white/5 shadow-[0_20px_60px_rgba(0,0,0,0.16)] backdrop-blur-3xl p-6 flex items-center justify-center">
+            <div
+              style={isTeam2Solid ? { backgroundColor: theme.team2Card } : {}}
+              className={`w-1/3 h-[270px] rounded-[32px] border border-white/10 hover:border-orange-400/50 ${isTeam2Solid ? '' : `bg-gradient-to-br ${theme.team2Card} bg-animate-gradient`} shadow-[0_20px_60px_rgba(0,0,0,0.3)] hover:shadow-[0_0_35px_rgba(251,146,60,0.2)] backdrop-blur-3xl p-6 flex items-center justify-center transition-all duration-500 hover:scale-[1.03] group group/team2 relative overflow-hidden animate-[team2Float_8s_ease-in-out_infinite] [animation-delay:1.5s]`}
+            >
+              <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/5 to-transparent opacity-0 group-hover/team2:opacity-100 transition-opacity duration-500 pointer-events-none" />
               <div className="relative w-full flex flex-col gap-5">
                 {/* TEAM NAME TOP */}
                 <div
@@ -568,18 +735,22 @@ export default function App() {
                     setShowEditor("team2");
                   }}
                   className="
-        text-6xl
-        leading-none
-        font-black
-        tracking-wide
-        cursor-pointer
-        text-center
-        border border-orange-300/40
-        rounded-2xl
-        px-6 py-5
-        hover:shadow-[0_0_20px_rgba(255,165,0,0.35)]
-        transition-all
-      "
+                    text-6xl
+                    leading-none
+                    font-black
+                    tracking-wide
+                    cursor-pointer
+                    text-center
+                    border border-orange-300/20
+                    hover:border-orange-300/80
+                    rounded-2xl
+                    px-6 py-5
+                    hover:shadow-[0_0_30px_rgba(249,115,22,0.35),inset_0_0_15px_rgba(249,115,22,0.15)]
+                    bg-white/5
+                    transition-all duration-300
+                    hover:scale-[1.02]
+                    active:scale-[0.98]
+                  "
                 >
                   {team2Name}
                 </div>
@@ -587,14 +758,20 @@ export default function App() {
                 {/* EMPTY SCORE SPACE */}
                 <div
                   className="
-        h-[150px]
-        border
-        border-orange-300/40
-        rounded-2xl
-        bg-black/20
-        backdrop-blur-md
-      "
-                ></div>
+                    h-[150px]
+                    border
+                    border-orange-300/20
+                    hover:border-orange-300/60
+                    rounded-2xl
+                    bg-black/30
+                    backdrop-blur-md
+                    transition-all duration-300
+                    shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]
+                    relative overflow-hidden
+                  "
+                >
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.05)_0%,transparent_70%)] animate-pulse" />
+                </div>
 
                 {/* TEAM 2 EDITOR */}
                 {showEditor === "team2" && (
@@ -615,6 +792,7 @@ export default function App() {
                   </div>
                 )}
               </div>
+              <ColorPicker target="team2Card" />
             </div>
           </div>
           <ColorPicker target="header" />
@@ -627,6 +805,7 @@ export default function App() {
           <GlassCard
             gradient={theme.lastOver}
             className="flex flex-1 items-center justify-center gap-5 py-4 px-8 min-h-[110px]"
+            animateClass="animate-[lastOverFloat_11s_ease-in-out_infinite] [animation-delay:2.2s]"
           >
             <ColorPicker target="lastOver" />
           </GlassCard>
@@ -640,14 +819,16 @@ export default function App() {
             <GlassCard
               gradient={theme.striker}
               className="min-h-[310px] p-4 flex flex-col rounded-[30px] border border-white/10 bg-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.18)]"
+              animateClass="animate-[strikerFloat_9s_ease-in-out_infinite] [animation-delay:0.4s]"
             >
               <ColorPicker target="striker" />
-              <span className="font-bold text-2xl tracking-[0.08em] blink">
+              <span className="inline-block font-extrabold text-2xl tracking-[0.12em] bg-gradient-to-r from-white via-cyan-100 to-blue-200 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(59,130,246,0.3)] animate-pulse">
                 BATSMAN
               </span>
-              <div className="mt-auto h-[90px] rounded-xl border border-white/10 bg-black/20 backdrop-blur-md p-4">
+              <div className="mt-auto h-[90px] rounded-xl border border-white/10 hover:border-white/30 bg-black/30 backdrop-blur-md p-4 transition-all duration-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)] relative overflow-hidden group/innercard">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/innercard:animate-[shimmer_3s_linear_infinite]" />
                 <p className="text-sm font-bold uppercase tracking-[0.25em] text-white/70">
-                   
+
                 </p>
               </div>
             </GlassCard>
@@ -656,14 +837,16 @@ export default function App() {
             <GlassCard
               gradient={theme.nonStriker}
               className="min-h-[310px] p-4 flex flex-col rounded-[30px] border border-white/10 bg-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.18)]"
+              animateClass="animate-[nonStrikerFloat_9s_ease-in-out_infinite] [animation-delay:2.8s]"
             >
-              <span className="font-bold text-2xl tracking-[0.08em] blink">
+              <span className="inline-block font-extrabold text-2xl tracking-[0.12em] bg-gradient-to-r from-white via-cyan-100 to-blue-200 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(34,211,238,0.3)] animate-pulse">
                 BATSMAN
               </span>
               <ColorPicker target="nonStriker" />
-              <div className="mt-auto h-[90px] rounded-xl border border-white/10 bg-black/20 backdrop-blur-md p-4">
+              <div className="mt-auto h-[90px] rounded-xl border border-white/10 hover:border-white/30 bg-black/30 backdrop-blur-md p-4 transition-all duration-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)] relative overflow-hidden group/innercard">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/innercard:animate-[shimmer_3s_linear_infinite]" />
                 <p className="text-sm font-bold uppercase tracking-[0.25em] text-white/70">
-                   
+
                 </p>
               </div>
             </GlassCard>
@@ -672,14 +855,16 @@ export default function App() {
             <GlassCard
               gradient={theme.bowler}
               className="min-h-[290px] p-4 flex flex-col rounded-[30px] border border-white/10 bg-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.18)]"
+              animateClass="animate-[bowlerFloat_10s_ease-in-out_infinite] [animation-delay:1.2s]"
             >
-              <span className="font-bold text-2xl tracking-[0.08em] blink">
+              <span className="inline-block font-extrabold text-2xl tracking-[0.12em] bg-gradient-to-r from-white via-orange-200 to-red-300 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(249,115,22,0.3)] animate-pulse">
                 BOWLER
               </span>
               <ColorPicker target="bowler" />
-              <div className="mt-auto h-[90px] rounded-xl border border-white/10 bg-black/20 backdrop-blur-md p-4">
+              <div className="mt-auto h-[90px] rounded-xl border border-white/10 hover:border-white/30 bg-black/30 backdrop-blur-md p-4 transition-all duration-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)] relative overflow-hidden group/innercard">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/innercard:animate-[shimmer_3s_linear_infinite]" />
                 <p className="text-sm font-bold uppercase tracking-[0.25em] text-white/70">
-                   
+
                 </p>
               </div>
             </GlassCard>
@@ -688,7 +873,11 @@ export default function App() {
             <GlassCard
               gradient={theme.event}
               className="min-h-[290px] p-6 flex flex-col justify-between rounded-[30px] border border-white/10 bg-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.18)]"
+              animateClass="animate-[eventFloat_12s_ease-in-out_infinite] [animation-delay:3.5s]"
             >
+              <span className="inline-block font-extrabold text-2xl tracking-[0.12em] bg-gradient-to-r from-white via-fuchsia-200 to-purple-300 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(217,70,239,0.3)] animate-pulse">
+                EVENT
+              </span>
               <ColorPicker target="event" />
             </GlassCard>
           </div>
@@ -697,12 +886,13 @@ export default function App() {
           <GlassCard
             gradient={theme.facecam}
             className="relative min-h-[640px] h-full overflow-hidden flex items-center justify-center rounded-[34px] border border-white/10 bg-white/10 shadow-[0_25px_80px_rgba(0,0,0,0.18)]"
+            animateClass="animate-[facecamFloat_15s_ease-in-out_infinite] [animation-delay:1.8s]"
           >
             <ColorPicker target="facecam" />
 
-            <div className="absolute left-1/2 top-1/2 h-[580px] w-[580px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-300/20 radar" />
+            <div className="absolute left-1/2 top-1/2 h-[580px] w-[580px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-500/20 shadow-[0_0_30px_rgba(6,182,212,0.1)] radar" />
 
-            <div className="absolute left-1/2 top-1/2 h-[480px] w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-fuchsia-300/20 animate-spin" />
+            <div className="absolute left-1/2 top-1/2 h-[480px] w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-fuchsia-300/20 animate-[spin_24s_linear_infinite]" />
 
             <div className="absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/20 radar" />
 
@@ -710,19 +900,19 @@ export default function App() {
               <div className="h-4 w-4 rounded-full bg-red-500 animate-ping" />
 
               <div
-                className={`rounded-full ${theme.live?.startsWith('#') ? '' : `bg-gradient-to-r ${theme.live}`} px-6 py-2 text-xl font-black`}
+                className={`rounded-full ${theme.live?.startsWith('#') ? '' : `bg-gradient-to-r ${theme.live}`} px-6 py-2 text-xl font-black shadow-[0_0_20px_rgba(239,68,68,0.4)] animate-[pulseGlow_2s_infinite]`}
                 style={theme.live?.startsWith('#') ? { backgroundImage: `linear-gradient(to right, ${theme.live}, ${theme.live}80)` } : {}}
               >
                 LIVE
               </div>
-              <p className="mt-4 text-xl text-white/70">LIVE COMMENTARY FEED</p>
+              <p className="mt-4 text-xl text-white/70 font-semibold tracking-wider">LIVE COMMENTARY FEED</p>
             </div>
 
-            <div className="absolute left-1/2 top-1/2 z-10 flex h-[350px] w-[350px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/30 backdrop-blur-2xl">
-              <div className="absolute inset-0 rounded-full border border-cyan-300/20 animate-pulse" />
+            <div className="absolute left-1/2 top-1/2 z-10 flex h-[350px] w-[350px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/45 backdrop-blur-2xl transition-all duration-500 hover:scale-105 group/mic shadow-[0_0_50px_rgba(6,182,212,0.15)] hover:shadow-[0_0_70px_rgba(6,182,212,0.35)]">
+              <div className="absolute inset-0 rounded-full border border-cyan-300/20 group-hover/mic:border-cyan-300/60 animate-pulse transition-colors duration-500" />
 
               <div className="text-center">
-                <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-white/10 text-5xl">
+                <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-white/10 text-5xl transition-all duration-300 group-hover/mic:scale-110 group-hover/mic:bg-white/20 animate-bounce">
                   🎙️
                 </div>
               </div>
@@ -737,7 +927,7 @@ export default function App() {
                 <div className="h-3 w-3 rounded-full bg-fuchsia-300 animate-bounce delay-200" />
               </div>
 
-              <h1 className="bg-gradient-to-r from-white via-cyan-300 to-white bg-clip-text text-6xl font-black text-transparent">
+              <h1 className="bg-gradient-to-r from-white via-cyan-300 to-white bg-clip-text text-6xl font-black text-transparent drop-shadow-[0_2px_10px_rgba(6,182,212,0.3)] animate-pulse">
                 VIMAL RAJJ COMMENTARY
               </h1>
 
@@ -748,7 +938,7 @@ export default function App() {
           </GlassCard>
         </div>
       </div>
-      
+
       {/* Root level theme modal to prevent clipping */}
       {renderThemeModal()}
     </>
