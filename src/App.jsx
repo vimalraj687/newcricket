@@ -582,7 +582,72 @@ export default function App() {
               width: 24px;
               height: 24px;
             }
-         `}</style>
+
+            @keyframes tech-grid-move {
+              0% { background-position: 0 0; }
+              100% { background-position: 28px 32px; }
+            }
+
+            .tech-grid {
+              background-image: 
+                linear-gradient(to right, rgba(6, 182, 212, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(6, 182, 212, 0.05) 1px, transparent 1px);
+              background-size: 14px 16px;
+              animation: tech-grid-move 8s linear infinite;
+            }
+
+            @keyframes audio-visualizer-bar {
+              0%, 100% { transform: scaleY(0.15); }
+              50% { transform: scaleY(1); }
+            }
+
+            .visualizer-bar {
+              transform-origin: bottom;
+              animation: audio-visualizer-bar 1.2s ease-in-out infinite;
+            }
+
+            @keyframes sound-ripple {
+              0% {
+                transform: translate(-50%, -50%) scale(0.9);
+                opacity: 0.7;
+              }
+              100% {
+                transform: translate(-50%, -50%) scale(1.6);
+                opacity: 0;
+              }
+            }
+
+            .ripple-ring {
+              animation: sound-ripple 3.5s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+            }
+
+            @keyframes scanner-swipe {
+              0% { left: 0%; opacity: 0; }
+              10% { opacity: 1; }
+              90% { opacity: 1; }
+              100% { left: 100%; opacity: 0; }
+            }
+
+            .scanner-line {
+              width: 8px;
+              height: 100%;
+              background: linear-gradient(to bottom, transparent, rgba(6, 182, 212, 0.65), transparent);
+              box-shadow: 0 0 20px 4px rgba(6, 182, 212, 0.95);
+              position: absolute;
+              top: 0;
+              left: 0;
+              animation: scanner-swipe 4s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+            }
+
+            @keyframes rotate-ccw {
+              0% { transform: rotate(360deg); }
+              100% { transform: rotate(0deg); }
+            }
+
+            .spin-ccw {
+              animation: rotate-ccw 20s linear infinite;
+            }
+          `}</style>
 
       <div
         style={isBgSolid ? { backgroundColor: theme.background } : {}}
@@ -666,6 +731,8 @@ export default function App() {
                     relative overflow-hidden
                   "
                 >
+                  <div className="absolute inset-0 tech-grid opacity-60" />
+                  <div className="scanner-line" />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.05)_0%,transparent_70%)] animate-pulse" />
                 </div>
 
@@ -708,7 +775,9 @@ export default function App() {
               </div>
 
               {/* EMPTY SPACE FOR OBS SCORE */}
-              <div className="flex-1 flex items-center justify-center z-10">
+              <div className="flex-1 flex items-center justify-center z-10 relative overflow-hidden rounded-2xl bg-black/20 border border-white/5">
+                <div className="absolute inset-0 tech-grid opacity-30" />
+                <div className="scanner-line" style={{ animationDelay: "1.5s" }} />
                 <div className="w-full h-[80px]" />
               </div>
 
@@ -770,6 +839,8 @@ export default function App() {
                     relative overflow-hidden
                   "
                 >
+                  <div className="absolute inset-0 tech-grid opacity-60" style={{ animationDirection: "reverse" }} />
+                  <div className="scanner-line" style={{ animationDelay: "2s" }} />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.05)_0%,transparent_70%)] animate-pulse" />
                 </div>
 
@@ -804,9 +875,11 @@ export default function App() {
 
           <GlassCard
             gradient={theme.lastOver}
-            className="flex flex-1 items-center justify-center gap-5 py-4 px-8 min-h-[110px]"
+            className="flex flex-1 items-center justify-center gap-5 py-4 px-8 min-h-[110px] relative overflow-hidden"
             animateClass="animate-[lastOverFloat_11s_ease-in-out_infinite] [animation-delay:2.2s]"
           >
+            <div className="absolute inset-0 tech-grid opacity-20 pointer-events-none" />
+            <div className="scanner-line opacity-40 pointer-events-none" style={{ animationDelay: "2.5s" }} />
             <ColorPicker target="lastOver" />
           </GlassCard>
         </div>
@@ -826,6 +899,8 @@ export default function App() {
                 BATSMAN
               </span>
               <div className="mt-auto h-[90px] rounded-xl border border-white/10 hover:border-white/30 bg-black/30 backdrop-blur-md p-4 transition-all duration-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)] relative overflow-hidden group/innercard">
+                <div className="absolute inset-0 tech-grid opacity-25" />
+                <div className="scanner-line opacity-50" style={{ animationDelay: "0.5s" }} />
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/innercard:animate-[shimmer_3s_linear_infinite]" />
                 <p className="text-sm font-bold uppercase tracking-[0.25em] text-white/70">
 
@@ -844,6 +919,8 @@ export default function App() {
               </span>
               <ColorPicker target="nonStriker" />
               <div className="mt-auto h-[90px] rounded-xl border border-white/10 hover:border-white/30 bg-black/30 backdrop-blur-md p-4 transition-all duration-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)] relative overflow-hidden group/innercard">
+                <div className="absolute inset-0 tech-grid opacity-25" style={{ animationDirection: "reverse" }} />
+                <div className="scanner-line opacity-50" style={{ animationDelay: "1.2s" }} />
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/innercard:animate-[shimmer_3s_linear_infinite]" />
                 <p className="text-sm font-bold uppercase tracking-[0.25em] text-white/70">
 
@@ -862,6 +939,8 @@ export default function App() {
               </span>
               <ColorPicker target="bowler" />
               <div className="mt-auto h-[90px] rounded-xl border border-white/10 hover:border-white/30 bg-black/30 backdrop-blur-md p-4 transition-all duration-300 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)] relative overflow-hidden group/innercard">
+                <div className="absolute inset-0 tech-grid opacity-25" />
+                <div className="scanner-line opacity-50" style={{ animationDelay: "1.8s" }} />
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/innercard:animate-[shimmer_3s_linear_infinite]" />
                 <p className="text-sm font-bold uppercase tracking-[0.25em] text-white/70">
 
@@ -872,10 +951,12 @@ export default function App() {
             {/* MATCH EVENT */}
             <GlassCard
               gradient={theme.event}
-              className="min-h-[290px] p-6 flex flex-col justify-between rounded-[30px] border border-white/10 bg-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.18)]"
+              className="min-h-[290px] p-6 flex flex-col justify-between rounded-[30px] border border-white/10 bg-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.18)] relative overflow-hidden"
               animateClass="animate-[eventFloat_12s_ease-in-out_infinite] [animation-delay:3.5s]"
             >
-              <span className="inline-block font-extrabold text-2xl tracking-[0.12em] bg-gradient-to-r from-white via-fuchsia-200 to-purple-300 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(217,70,239,0.3)] animate-pulse">
+              <div className="absolute inset-0 tech-grid opacity-20 pointer-events-none" />
+              <div className="scanner-line opacity-40 pointer-events-none" style={{ animationDelay: "1s" }} />
+              <span className="inline-block font-extrabold text-2xl tracking-[0.12em] bg-gradient-to-r from-white via-fuchsia-200 to-purple-300 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(217,70,239,0.3)] animate-pulse z-10">
                 EVENT
               </span>
               <ColorPicker target="event" />
@@ -890,11 +971,11 @@ export default function App() {
           >
             <ColorPicker target="facecam" />
 
-            <div className="absolute left-1/2 top-1/2 h-[580px] w-[580px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-500/20 shadow-[0_0_30px_rgba(6,182,212,0.1)] radar" />
+            <div className="absolute left-1/2 top-1/2 h-[580px] w-[580px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-cyan-500/20 shadow-[0_0_30px_rgba(6,182,212,0.1)] radar" />
 
-            <div className="absolute left-1/2 top-1/2 h-[480px] w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-fuchsia-300/20 animate-[spin_24s_linear_infinite]" />
+            <div className="absolute left-1/2 top-1/2 h-[480px] w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dotted border-fuchsia-400/30 spin-ccw" />
 
-            <div className="absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/20 radar" />
+            <div className="absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-white/20 radar" />
 
             <div className="absolute left-6 top-6 z-20 flex items-center gap-3">
               <div className="h-4 w-4 rounded-full bg-red-500 animate-ping" />
@@ -908,12 +989,49 @@ export default function App() {
               <p className="mt-4 text-xl text-white/70 font-semibold tracking-wider">LIVE COMMENTARY FEED</p>
             </div>
 
+            {/* SOUNDWAVE RIPPLES */}
+            <div className="absolute left-1/2 top-1/2 h-[350px] w-[350px] rounded-full border border-cyan-400/30 ripple-ring pointer-events-none" style={{ animationDelay: "0s" }} />
+            <div className="absolute left-1/2 top-1/2 h-[350px] w-[350px] rounded-full border border-cyan-400/20 ripple-ring pointer-events-none" style={{ animationDelay: "1.1s" }} />
+            <div className="absolute left-1/2 top-1/2 h-[350px] w-[350px] rounded-full border border-cyan-400/10 ripple-ring pointer-events-none" style={{ animationDelay: "2.2s" }} />
+
             <div className="absolute left-1/2 top-1/2 z-10 flex h-[350px] w-[350px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/45 backdrop-blur-2xl transition-all duration-500 hover:scale-105 group/mic shadow-[0_0_50px_rgba(6,182,212,0.15)] hover:shadow-[0_0_70px_rgba(6,182,212,0.35)]">
               <div className="absolute inset-0 rounded-full border border-cyan-300/20 group-hover/mic:border-cyan-300/60 animate-pulse transition-colors duration-500" />
 
-              <div className="text-center">
-                <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-white/10 text-5xl transition-all duration-300 group-hover/mic:scale-110 group-hover/mic:bg-white/20 animate-bounce">
+              <div className="text-center flex flex-col items-center">
+                <div className="mx-auto mb-2 flex h-24 w-24 items-center justify-center rounded-full bg-white/10 text-5xl transition-all duration-300 group-hover/mic:scale-110 group-hover/mic:bg-white/20 animate-bounce">
                   🎙️
+                </div>
+                
+                {/* ACTIVE AUDIO VISUALIZER */}
+                <div className="flex items-end justify-center gap-1 h-8 mt-2 overflow-hidden px-4">
+                  {[...Array(11)].map((_, i) => {
+                    const heights = ["h-3", "h-5", "h-7", "h-4", "h-6", "h-8", "h-5", "h-7", "h-3", "h-6", "h-4"];
+                    const colors = [
+                      "bg-cyan-400",
+                      "bg-cyan-300",
+                      "bg-sky-400",
+                      "bg-sky-300",
+                      "bg-indigo-400",
+                      "bg-indigo-300",
+                      "bg-fuchsia-400",
+                      "bg-purple-400",
+                      "bg-cyan-400",
+                      "bg-sky-400",
+                      "bg-cyan-300"
+                    ];
+                    const duration = 0.5 + ((i * 7) % 7) * 0.1;
+                    const delay = ((i * 3) % 5) * 0.15;
+                    return (
+                      <div
+                        key={i}
+                        className={`w-1 rounded-full visualizer-bar ${heights[i % heights.length]} ${colors[i % colors.length]} shadow-[0_0_8px_rgba(6,182,212,0.6)]`}
+                        style={{
+                          animationDuration: `${duration}s`,
+                          animationDelay: `${delay}s`,
+                        }}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             </div>
