@@ -1,16 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  --animate-shimmer: shimmer 2s linear infinite;
+  --animate-shimmer: shimmer 2.5s linear infinite;
   --animate-pulse-fast: pulse-fast 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  --animate-scan: scan 3s linear infinite;
-  --animate-gradient-x: gradient-x 5s ease infinite;
-  --animate-flicker: flicker 2s infinite alternate;
-  --animate-rotate-slow: rotate-slow 10s linear infinite;
-  --animate-bounce-x: bounce-x 1s infinite alternate;
   --animate-glow-pulse: glow-pulse 2s infinite;
   --animate-float: float 4s ease-in-out infinite;
-  --animate-ring-spin: ring-spin 12s linear infinite;
 
   @keyframes shimmer {
     0% { transform: translateX(-100%); }
@@ -20,77 +14,134 @@
     0%, 100% { opacity: 1; }
     50% { opacity: .4; }
   }
-  @keyframes scan {
-    0% { transform: translateY(-100%); opacity: 0; }
-    50% { opacity: 1; }
-    100% { transform: translateY(100%); opacity: 0; }
-  }
-  @keyframes gradient-x {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-  }
-  @keyframes flicker {
-    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; text-shadow: 0 0 10px currentColor; }
-    20%, 24%, 55% { opacity: 0.6; text-shadow: none; }
-  }
-  @keyframes rotate-slow {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  @keyframes bounce-x {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(10px); }
-  }
   @keyframes glow-pulse {
     0%, 100% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); }
     50% { box-shadow: 0 0 30px rgba(255, 255, 255, 0.6); }
   }
   @keyframes float {
     0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-8px); }
-  }
-  @keyframes ring-spin {
-    0% { transform: rotate(0deg) scale(1); }
-    50% { transform: rotate(180deg) scale(1.05); }
-    100% { transform: rotate(360deg) scale(1); }
+    50% { transform: translateY(-6px); }
   }
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #050505;
+  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #0c0f1d;
   color: white;
   overflow-x: hidden;
 }
 
+/* Custom Scrollbar for Dashboard Control Panel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Cricket Overlay Styling Utilities */
+.text-stroke-1 {
+  -webkit-text-stroke: 1px black;
+}
+.text-stroke-2 {
+  -webkit-text-stroke: 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Diagonal Cutouts for Scoreboard */
+.clip-score-left {
+  clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+}
+
+.clip-score-right {
+  clip-path: polygon(8% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.clip-sub-banner {
+  clip-path: polygon(2% 0, 98% 0, 100% 100%, 0 100%);
+}
+
+.clip-slanted-both {
+  clip-path: polygon(4% 0, 96% 0, 100% 100%, 0 100%);
+}
+
+.clip-flag-oman {
+  clip-path: circle(50% at 50% 50%);
+}
+
+.bg-dot-pattern {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1.5px, transparent 1.5px);
+  background-size: 10px 10px;
+}
+
+.overlay-font {
+  font-family: 'Outfit', 'Trebuchet MS', 'Arial Black', sans-serif;
+}
+
+/* Glow effects */
+.glow-blue {
+  box-shadow: 0 0 15px rgba(29, 78, 216, 0.5);
+}
+.glow-orange {
+  box-shadow: 0 0 15px rgba(234, 88, 12, 0.5);
+}
+.glow-pink {
+  box-shadow: 0 0 15px rgba(219, 39, 119, 0.5);
+}
+
+/* Animate the like share subscribe text */
+@keyframes textPulse {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.03); filter: brightness(1.2); }
+}
+
+.animate-text-pulse {
+  animation: textPulse 2s ease-in-out infinite;
+}
+
+/* Slanted scoreboard layouts matching reference image */
+.clip-team-left {
+  clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%);
+}
+
+.clip-team-right {
+  clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.clip-event-center {
+  clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%);
+}
+
+/* Continuous scrolling ticker animation */
+@keyframes marquee {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+}
+
+.marquee-content {
+  display: inline-block;
+  padding-left: 20px;
+  animation: marquee 25s linear infinite;
+  will-change: transform;
+}
+
+/* Glass panel customizations */
 .glass-panel {
-  background: rgba(20, 20, 25, 0.6);
+  background: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.bg-animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient-x 5s ease infinite;
-}
-
-.page-glow {
-  position: relative;
-}
-
-.page-glow::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 20% 10%, rgba(56, 189, 248, 0.18), transparent 18%), radial-gradient(circle at 80% 75%, rgba(168, 85, 247, 0.16), transparent 20%);
-  pointer-events: none;
-  opacity: 0.8;
-  mix-blend-mode: screen;
-}
-
-.pulseGlow {
-  animation: glow-pulse 4s ease-in-out infinite;
-}
